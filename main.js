@@ -1,51 +1,103 @@
+// Axios Global
+ axios.defaults.headers.common["X-Auth-Token"] = "adhfopdajofjapgfloasgfoashogfadsoh"
+
 // GET REQUEST
 function getTodos() {
-  console.log('GET Request');
+  axios.get("https://jsonplaceholder.typicode.com/todos", { params: { id: 2 } }).then((data) => showOutput(data))
+
 }
 
 // POST REQUEST
 function addTodo() {
-  console.log('POST Request');
+  axios.post("https://jsonplaceholder.typicode.com/todos", {
+    firstname: "Abhinav",
+    lastname: "Tripathi"
+  }).then((data) => showOutput(data))
 }
 
 // PUT/PATCH REQUEST
 function updateTodo() {
-  console.log('PUT/PATCH Request');
+  axios.put("https://jsonplaceholder.typicode.com/todos/1", {
+    Updated: "True",
+    info: "the put request works fine"
+  }).then((data) => showOutput(data))
 }
 
 // DELETE REQUEST
 function removeTodo() {
-  console.log('DELETE Request');
+  axios.delete("https://jsonplaceholder.typicode.com/todos/1").then((data) => showOutput(data))
 }
 
 // SIMULTANEOUS DATA
 function getData() {
-  console.log('Simultaneous Request');
+  axios.all([axios.get("https://jsonplaceholder.typicode.com/todos"),
+  axios.get("https://jsonplaceholder.typicode.com/posts")])
+    .then((data) => console.log(data))
 }
 
 // CUSTOM HEADERS
 function customHeaders() {
-  console.log('Custom Headers');
+  axios.get("https://jsonplaceholder.typicode.com/todos", {headers:{"what": "new",
+  Authorization: "token"}}).then((data) => showOutput(data))
 }
 
 // TRANSFORMING REQUESTS & RESPONSES
 function transformResponse() {
-  console.log('Transform Response');
+  const options = {
+    method: "post",
+    url:"https://jsonplaceholder.typicode.com/todos",
+    data: {
+      title : "hello man"
+    },
+    transformResponse: axios.defaults.transformResponse.concat(data=>{
+      data.title = data.title.toUpperCase();
+      return data;
+    })
+  }
+axios(options).then(res => showOutput(res))
 }
 
 // ERROR HANDLING
 function errorHandling() {
-  console.log('Error Handling');
+  axios.get("https://jsonplaceholder.typicode.com/todoss", { params: { id: 2 } })
+  .then((data) => showOutput(data))
+  .catch((err) => {
+    console.log(err.response.data);
+    console.log(err.response.status);
+    console.log(err.response.headers);
+  if(err.response.status == 404){
+    alert("Page Not Found")}
+  else console.log(err.message)
+  })
 }
 
 // CANCEL TOKEN
 function cancelToken() {
-  console.log('Cancel Token');
+  const source = axios.CancelToken.source();
+  axios.get("https://jsonplaceholder.typicode.com/todos", { cancelToken: source.token })
+  .then((data) => showOutput(data))
+  .catch(thrown => {
+    if(axios.isCancel(thrown)){
+      console.log("Request canceled",thrown.message);
+    }
+  })
+  if(true){
+    source.cancel("Request Cancelled");
+  }
 }
 
 // INTERCEPTING REQUESTS & RESPONSES
+axios.interceptors.request.use(config => {
+  console.log(`${config.method} request sent to ${config.url} at ${new Date()}`)
+  return config
+})
 
 // AXIOS INSTANCES
+const axiosinstance = axios.create({
+  baseURL: "https://jsonplaceholder.typicode.com"
+})
+
+axiosinstance.get("/comments").then(res => showOutput(res))
 
 // Show output in browser
 function showOutput(res) {
